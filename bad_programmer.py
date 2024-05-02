@@ -1,5 +1,9 @@
 import streamlit as st
 import time
+import os
+
+def get_replicate_api_token():
+    os.environ['REPLICATE_API_TOKEN'] = st.secrets['REPLICATE_API_TOKEN']
 
 def stream_chat_message(text):
     for word in text.split():
@@ -26,9 +30,13 @@ def display_initial_message(streaming=True):
         else:
             st.write("Can you help me fix this code?")
 
-def main():
-    st.title("Meet the bad programmer!")
+def display_ui():
+    st.title('Meet the bad programmer!')
     st.write("This is a bad programmer. He writes bad code. However, he is trying to improve. Can you help him?")
+
+def main():
+    get_replicate_api_token()
+    display_ui()
 
     # Initialize the chatbot
     if "messages" not in st.session_state:
@@ -54,7 +62,6 @@ def main():
             st.write(prompt)
 
         st.session_state.messages.append({"role": "user", "content": prompt})
-
 
 if __name__ == "__main__":
     main()
