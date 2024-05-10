@@ -45,16 +45,19 @@ def display_initial_message(streaming=True):
     with st.chat_message("Bad Programmer", avatar="🤖"):
         if streaming:
             st.write_stream(stream_chat_message("Hello! I am a bad programmer. I need help writing good code."))
-            st.write_stream(stream_chat_message("I am trying to write a function that adds two numbers. Can you help me?"))
+            # st.write_stream(stream_chat_message("I am trying to write a function that adds two numbers. Can you help me?"))
+            st.write_stream(stream_chat_message(st.session_state.task))
         else:
             st.write("Hello! I am a bad programmer. I need help writing good code. Can you help me?")
-            st.write("I am trying to write a function that adds two numbers. Can you help me?")
+            # st.write("I am trying to write a function that adds two numbers. Can you help me?")
+            st.write(st.session_state.task)
 
         # Display a piece of that the user can change and help the bad programmer
         code = '''def add_numbers(a, b):
         return a - b
         '''
-        st.code(code, language="python")
+        # st.code(code, language="python")
+        st.code(st.session_state.code, language="python")
         
         if streaming:
             st.write_stream(stream_chat_message("Can you help me fix this code?"))
@@ -76,7 +79,7 @@ def get_and_process_prompt():
         st.button('New problem please!', on_click=restart_chat, key="new_problem")
         st.chat_input(disabled=True)
     elif prompt := st.chat_input("Type your message here..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.messages.append({"role": "user", "avatar":"🧑‍💻", "content": prompt})
         st.rerun()
 
 def restart_chat():
@@ -116,10 +119,56 @@ def generate_response():
         
         st.session_state.messages[-1]["content"] += str(event)
 
+def initial_prompt():
+    # perform the initial prompt to get the bad programmer started
+    produced_output = False
+    number_of_tries = 0
+    
+    while not produced_output:
+        print(f"Trying to generate the prompt, attempt number: {number_of_tries}")
+        difficulties = ["beginner", "intermediate", "advanced"]
+        difficulty = difficulties[0]
+
+        if number_of_tries > 5:
+            st.write("There was an error generating the prompt. Please try again.")
+            break
+
+        output = replicate.run(
+            "snowflake/snowflake-arctic-instruct",
+            input={ "prompt": f"""Generate a Python function that performs a common programming task. You have to introduce a bug in the code. The bug can be a syntax error, type error. The bug should not be related to edge cases or not handling certain cases/input values. A {difficulty}-level programmer should be able to find the bug.
+                Do not include any comments in the code that might hint at or describe the bug.
+                Please return the code with a bug in it in the following way:
+                
+                I am trying to **programming task**. Can you help me?
+
+                **Code:**
+                
+                **Bug in the code:**
+                """ },
+                )
+        
+        print(output)
+
+        try:
+            output = output.split("**Code:**")
+            task = output[0].strip()
+            code = output[1].split("**Bug in the code:**")[0].strip()
+            bug = output[1].split("**Bug in the code:**")[1].strip()
+
+            st.session_state.task = task
+            st.session_state.code = code
+            st.session_state.bug = bug
+
+            produced_output = True
+        except IndexError:
+            number_of_tries += 1
+            continue
+
 def main():
     get_replicate_api_token()
     display_ui()
     init_session_state()
+    initial_prompt()
     display_chat_messages()
     get_and_process_prompt()
 
