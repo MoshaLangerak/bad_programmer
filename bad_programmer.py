@@ -147,10 +147,11 @@ def initial_prompt():
                 """ },
                 )
         
-        print(output)
+        
 
         try:
-            output = output.split("**Code:**")
+            output = "".join(output).split("**Code:**")
+
             task = output[0].strip()
             code = output[1].split("**Bug in the code:**")[0].strip()
             bug = output[1].split("**Bug in the code:**")[1].strip()
