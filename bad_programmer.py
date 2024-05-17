@@ -4,8 +4,16 @@ import os
 from transformers import AutoTokenizer
 import replicate
 
+from utility_functions import stream_chat_message
+
 def get_replicate_api_token():
     os.environ['REPLICATE_API_TOKEN'] = st.secrets['REPLICATE_API_TOKEN']
+
+def display_ui():
+    st.title('Meet the bad programmer!')
+    st.write("""This is a bad programmer. He writes bad code. However, he is trying to improve. 
+             It is your job to help him write good code. You will be presented with a piece of 
+             code that the bad programmer has written. You need to help him fix it. Let's get started!""")
 
 def init_session_state():
     if "messages" not in st.session_state:
@@ -13,12 +21,6 @@ def init_session_state():
         st.session_state.chat_finished = False
         st.session_state.temperature = 0.3
         st.session_state.top_p = 0.9
-
-def display_ui():
-    st.title('Meet the bad programmer!')
-    st.write("""This is a bad programmer. He writes bad code. However, he is trying to improve. 
-             It is your job to help him write good code. You will be presented with a piece of 
-             code that the bad programmer has written. You need to help him fix it. Let's get started!""")
 
 def display_chat_messages():
     # if there are no messages, display the initial message
@@ -36,11 +38,6 @@ def display_chat_messages():
                 with st.chat_message(message['role'], avatar=message.get("avatar", None)):
                     st.write(message['content'])
         
-def stream_chat_message(text):
-    for word in text.split():
-        yield word + " "
-        time.sleep(0.02)
-
 def display_initial_message(streaming=True):
     with st.chat_message("Bad Programmer", avatar="🤖"):
         if streaming:
