@@ -146,8 +146,6 @@ def initial_prompt():
                 **Bug in the code:**
                 """ },
                 )
-        
-        
 
         try:
             output = "".join(output).split("**Code:**")
@@ -155,6 +153,9 @@ def initial_prompt():
             task = output[0].strip()
             code = output[1].split("**Bug in the code:**")[0].strip()
             bug = output[1].split("**Bug in the code:**")[1].strip()
+
+            # remove ```python and ``` from the code
+            code = code.replace("```python", "").replace("```", "").strip()
 
             st.session_state.task = task
             st.session_state.code = code
