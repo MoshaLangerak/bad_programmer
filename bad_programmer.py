@@ -21,6 +21,7 @@ def init_session_state():
         st.session_state.chat_finished = False
         st.session_state.temperature = 0.3
         st.session_state.top_p = 0.9
+        st.session_state.output = None
 
 def display_chat_messages():
     # if there are no messages, display the initial message
@@ -118,10 +119,9 @@ def generate_response():
 
 def initial_prompt():
     # perform the initial prompt to get the bad programmer started
-    produced_output = False
     number_of_tries = 0
     
-    while not produced_output:
+    while st.session_state.output is None:
         print(f"Trying to generate the prompt, attempt number: {number_of_tries}")
         difficulties = ["beginner", "intermediate", "advanced"]
         difficulty = difficulties[0]
@@ -145,7 +145,10 @@ def initial_prompt():
                 )
 
         try:
-            output = "".join(output).split("**Code:**")
+            output = "".join(output)
+            st.session_state.output = output
+            
+            output = output.split("**Code:**")
 
             task = output[0].strip()
             code = output[1].split("**Bug in the code:**")[0].strip()
@@ -158,7 +161,6 @@ def initial_prompt():
             st.session_state.code = code
             st.session_state.bug = bug
 
-            produced_output = True
         except IndexError:
             number_of_tries += 1
             continue
