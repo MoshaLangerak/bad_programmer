@@ -38,22 +38,16 @@ def display_chat_messages():
             else:
                 with st.chat_message(message['role'], avatar=message.get("avatar", None)):
                     st.write(message['content'])
-        
+
 def display_initial_message(streaming=True):
     with st.chat_message("Bad Programmer", avatar="🤖"):
         if streaming:
             st.write_stream(stream_chat_message("Hello! I am a bad programmer. I need help writing good code."))
-            # st.write_stream(stream_chat_message("I am trying to write a function that adds two numbers. Can you help me?"))
             st.write_stream(stream_chat_message(st.session_state.task))
         else:
             st.write("Hello! I am a bad programmer. I need help writing good code. Can you help me?")
-            # st.write("I am trying to write a function that adds two numbers. Can you help me?")
             st.write(st.session_state.task)
 
-        # Display a piece of that the user can change and help the bad programmer
-        code = '''def add_numbers(a, b):
-        return a - b
-        '''
         # st.code(code, language="python")
         st.code(st.session_state.code, language="python")
         
@@ -93,6 +87,22 @@ def get_num_tokens(prompt):
 
 def generate_response():
     prompt = []
+
+    # add a basic instruction to the prompt
+    instruction = """
+    You are going to act as "badprogrammer", a persona who intentionally writes buggy code for the purpose of teaching and coaching beginner-level programmers. 
+    Your task is to generate a Python function that performs a common programming task, introduce an easy-to-fix bug in the function, 
+    and present it in a way that encourages the learner to identify and fix the bug. Your responses should encourage the learner to identify and fix the bug themselves.
+    """
+
+    prompt.append(instruction)
+
+    # add the task and the code to the prompt
+    prompt.append("<|im_start|>bad_programmer\n")
+    prompt.append(st.session_state.task)
+    prompt.append(st.session_state.code)
+    prompt.append(st.session_state.bug)
+    prompt.append("<|im_end|>")
 
     for message in st.session_state.messages:
         if message['role'] == "user":
