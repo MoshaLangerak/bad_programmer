@@ -20,7 +20,7 @@ def init_session_state():
         st.session_state.messages = []
         st.session_state.chat_finished = False
         st.session_state.temperature = 0.7
-        st.session_state.top_p = 0.9
+        st.session_state.top_p = 0.8
         st.session_state.output = None
 
 def display_chat_messages():
@@ -51,7 +51,6 @@ def display_initial_message(streaming=True):
         # st.code(code, language="python")
         st.code(st.session_state.code, language="python")
         
-
 def get_and_process_prompt():
     if st.session_state.messages[-1]['role'] == "user":
         # Generate a response
@@ -139,16 +138,20 @@ def initial_prompt():
 
         output = replicate.run(
             "snowflake/snowflake-arctic-instruct",
-            input={ "prompt": f"""Generate a Python function that performs a common programming task. You have to introduce a bug in the code. The bug can be a syntax error, type error. The bug should not be related to edge cases or not handling certain cases/input values. A {difficulty}-level programmer should be able to find the bug.
-                Do not include any comments in the code that might hint at or describe the bug.
-                Please return the code with a bug in it in the following way:
-                
-                I am trying to **programming task**, but I have run into a bug can you help me?
-
-                **Code:**
-                
-                **Bug in the code:**
-                """ },
+            input={ "prompt": f"""Generate a Python function of around 5 lines that performs a common programming task. 
+                   You have to introduce a bug in the code. The bug can be for example, mixing up a + and -, messing up arguments or misspelling a variable. 
+                   The bug should not be related to edge cases or not handling certain cases/input values. 
+                   A {difficulty}-level programmer should be able to find the bug.
+                   Do not include any comments in the code that might hint at or describe the bug.
+                   
+                   Please return the code with a bug in it in the following way:
+                   
+                   I am trying to **programming task**, but I have run into a bug can you help me?
+                   
+                   **Code:**
+                   
+                   **Bug in the code:**
+                   """ },
                 )
 
         try:
