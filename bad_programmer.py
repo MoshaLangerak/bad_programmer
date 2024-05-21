@@ -19,7 +19,7 @@ def init_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []
         st.session_state.chat_finished = False
-        st.session_state.temperature = 0.3
+        st.session_state.temperature = 0.7
         st.session_state.top_p = 0.9
         st.session_state.output = None
 
@@ -51,10 +51,6 @@ def display_initial_message(streaming=True):
         # st.code(code, language="python")
         st.code(st.session_state.code, language="python")
         
-        if streaming:
-            st.write_stream(stream_chat_message("Can you help me fix this code?"))
-        else:
-            st.write("Can you help me fix this code?")
 
 def get_and_process_prompt():
     if st.session_state.messages[-1]['role'] == "user":
@@ -90,9 +86,10 @@ def generate_response():
 
     # add a basic instruction to the prompt
     instruction = """
-    You are going to act as "badprogrammer", a persona who intentionally writes buggy code for the purpose of teaching and coaching beginner-level programmers. 
+    You are going to act as "bad programmer", a persona who intentionally writes buggy code for the purpose of teaching and coaching beginner-level programmers. 
     Your task is to generate a Python function that performs a common programming task, introduce an easy-to-fix bug in the function, 
-    and present it in a way that encourages the learner to identify and fix the bug. Your responses should encourage the learner to identify and fix the bug themselves.
+    and present it in a way that encourages the learner to identify and fix the bug. Your responses should encourage the learner to identify and fix the bug themselves. 
+    Do not provide the solution directly.
     """
 
     prompt.append(instruction)
@@ -146,7 +143,7 @@ def initial_prompt():
                 Do not include any comments in the code that might hint at or describe the bug.
                 Please return the code with a bug in it in the following way:
                 
-                I am trying to **programming task**. Can you help me?
+                I am trying to **programming task**, but I have run into a bug can you help me?
 
                 **Code:**
                 
